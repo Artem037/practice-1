@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/neatcounter.dir/main.cpp.o -o neatcounter 

@@ -1,0 +1,3 @@
+/home/pip/practice1/build/CMakeFiles/neatcounter.dir
+/home/pip/practice1/build/CMakeFiles/edit_cache.dir
+/home/pip/practice1/build/CMakeFiles/rebuild_cache.dir
