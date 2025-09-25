@@ -2,13 +2,13 @@
 #include <cstring>
 #include <fstream>
 
-const int ENG_ALPH_SZ = 26;
+const int kEnglishAlphSize = 26;
 
-bool is_letter(char c) {
+bool IsLetter(char c) {
   return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-char to_lower(char c) {
+char ToLower(char c) {
   if (c >= 'A' && c <= 'Z') {
     return char(c - 'A' + 'a');
   } else {
@@ -16,8 +16,8 @@ char to_lower(char c) {
   }
 }
 
-bool includes_all(bool need[26], bool have[26]) {
-    for (int i = 0; i < 26; ++i) {
+bool IncludesAll(const bool need[kEnglishAlphSize], const bool have[kEnglishAlphSize]) {
+    for (int i = 0; i < kEnglishAlphSize; ++i) {
       if (need[i] && !have[i]) {
         return false;
       }
@@ -27,18 +27,38 @@ bool includes_all(bool need[26], bool have[26]) {
 
 
 int main(int argc, char** argv) {
-  if (std::strcmp(argv[1], "--word") != 0 || std::strcmp(argv[3], "--file") != 0 || argc < 5) {
-    std::cout << "error" << '\n';
+  if (argc < 5) {
+    std::cerr << "error\n";
+
+    return 0;
   }
 
-  const char* word = argv[2];
-  const char* file = argv[4];
+  const char* word = nullptr;
+  const char* file = nullptr;
 
-  bool need[ENG_ALPH_SZ];
-  for (int i = 0; i < ENG_ALPH_SZ; ++i) need[i] = false;
+  for (int i = 1; i < argc; ++i) {
+    if (std::strcmp(argv[i], "--word") == 0 && i + 1 < argc) {
+      word = argv[i + 1];
+      ++i;
+    } else if (std::strcmp(argv[i], "--file") == 0 && i + 1 < argc) {
+      file = argv[i + 1];
+      ++i;
+    }
+  }
+
+  if (!word || !file) {
+    std::cerr << "error: no word or file argument\n";
+
+    return 0;
+  }
+
+  bool need[kEnglishAlphSize];
+  for (int i = 0; i < kEnglishAlphSize; ++i) {
+    need[i] = false;
+  }
   for (const char* p = word; *p; ++p) {
-    if (is_letter(*p)) {
-      need[to_lower(*p) - 'a'] = true;
+    if (IsLetter(*p)) {
+      need[ToLower(*p) - 'a'] = true;
     }
   }
 
@@ -47,20 +67,29 @@ int main(int argc, char** argv) {
   if (!in.is_open()) {
     std::cout << "failed to open\n";
   } else {
-    bool have[ENG_ALPH_SZ]; for (int i = 0; i < ENG_ALPH_SZ; ++i) have[i] = false;
+    bool have[kEnglishAlphSize]; 
+    for (int i = 0; i < kEnglishAlphSize; ++i) {
+      have[i] = false;
+    }
     int count = 0;
 
     char ch;
     while (in.get(ch)) {
-      if (is_letter(ch)) {
-        have[to_lower(ch) - 'a'] = true;
+      if (IsLetter(ch)) {
+        have[ToLower(ch) - 'a'] = true;
       } else {
-        if (includes_all(need, have)) ++count;
-        for (int i = 0; i < ENG_ALPH_SZ; ++i) have[i] = false;
+        if (IncludesAll(need, have)) {
+          ++count;
+        }
+        for (int i = 0; i < kEnglishAlphSize; ++i) {
+          have[i] = false;
+        }
       }
     }
 
-    if (includes_all(need, have)) ++count;
+    if (IncludesAll(need, have)) {
+      ++count;
+    }
 
     std::cout << count << '\n'; 
   }
